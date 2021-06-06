@@ -31,16 +31,17 @@ def load_data(currency='BTC', against='EUR'):
     df.reset_index(inplace=True)
     df.set_index(["Date"])
 
-    sma = df['Close'].rolling(window=30).mean()  # Simple moving average (SMA)
-    std = df['Close'].rolling(window=30).std()  # Standard deviation
+    sma = df['Close'].rolling(window=20).mean()  # Simple moving average (SMA)
+    std = df['Close'].rolling(window=20).std()  # Standard deviation
     df['Upper'] = sma + (2 * std)  # Bollinger band
     df['Lower'] = sma - (2 * std)  # Bollinger band
 
     df['Short'] = df.Close.ewm(span=20, adjust=False).mean()  # Exponential moving average 20 days
     df['Long'] = df.Close.ewm(span=50, adjust=False).mean()  # Exponential moving average 50 days
 
-    df['20MA'] = df['Close'].rolling(window=20).mean()  # 20 moving average (20MA)
+    df['20MA'] = sma  # 20 moving average (20MA)
     df['50MA'] = df['Close'].rolling(window=50).mean()  # 50 moving average (50MA)
+    df['200MA'] = df['Close'].rolling(window=200).mean()  # 200 moving average (50MA)
 
     shortema = df.Close.ewm(span=12, adjust=False).mean()  # Exponential moving average 12 days
     longema = df.Close.ewm(span=26, adjust=False).mean()  # Exponential moving average 26 days
@@ -79,7 +80,7 @@ def price_plot(df):
     Closed_Price = go.Scatter(
         x=df['Date'],
         y=df['Close'],
-        name='Close',
+        name='Price',
         line_color='blue',
     )
     MA20 = go.Scatter(
@@ -93,6 +94,26 @@ def price_plot(df):
         y=df['50MA'],
         name='50MA',
         line_color='orange',
+    )
+    MA200 = go.Scatter(
+    x=df['Date'],
+    y=df['200MA'],
+    name='200MA',
+    line_color='pink',
+    )
+    Short = go.Scatter(
+        x=df['Date'],
+        y=df['Short'],
+        name='Short',
+        line_color='green',
+        line_dash='dot',
+    )
+    Long = go.Scatter(
+        x=df['Date'],
+        y=df['Long'],
+        name='Long',
+        line_color='green',
+        line_dash='dash',
     )
     Upper = go.Scatter(
         x=df['Date'],
@@ -108,13 +129,14 @@ def price_plot(df):
         mode='lines',
         line_color='silver',
     )
-    data = [Closed_Price, MA20, MA50, Upper, Lower]
+    data = [Closed_Price, MA20, MA50, MA200, Short, Long, Upper, Lower]
     layout = go.Layout(yaxis=dict())
     fig = go.Figure(data=data, layout=layout)
     fig.update_layout(
         title='Closed Price',
         yaxis_title='Price',
         xaxis_title='Dates',
+        xaxis_tickangle=-90,
         legend_title='Indicator',
     )
     return st.write(fig)
@@ -135,6 +157,7 @@ def volume_plot(df):
         title='Volume',
         yaxis_title='Operations',
         xaxis_title='Dates',
+        xaxis_tickangle=-90,
         legend_title='Indicator',
     )
     return st.write(fig)
@@ -153,6 +176,7 @@ def atr_plot(df):
         title='ATR',
         yaxis_title='ATR %',
         xaxis_title='Dates',
+        xaxis_tickangle=-90,
         legend_title='Indicator',
     )
     return st.write(fig)
@@ -182,6 +206,7 @@ def macd_plot(df):
         title='MACD',
         yaxis_title='MACD',
         xaxis_title='Dates',
+        xaxis_tickangle=-90,
         legend_title='Indicator',
     )
     return st.write(fig)
@@ -195,7 +220,7 @@ st.subheader('Data')
 st.dataframe(df)
 
 st.subheader('Graphics')
-if st.button('Price (20MA, 50MA, Bollinger)'):
+if st.button('Price (MAs, Bollinger)'):
     price_plot(df)
 if st.button('Volume'):
     volume_plot(df)
