@@ -76,10 +76,6 @@ st.sidebar.markdown(filedownload(df), unsafe_allow_html=True)
 
 # Graphics
 def price_plot(df):
-    period = 60
-    df = df.loc[df.shape[0] - period:]
-    df.reset_index(inplace=True)
-
     Closed_Price = go.Scatter(
         x=df['Date'],
         y=df['Close'],
@@ -125,10 +121,6 @@ def price_plot(df):
 
 
 def volume_plot(df):
-    period = 60
-    df = df.loc[df.shape[0] - period:]
-    df.reset_index(inplace=True)
-
     Volume = go.Scatter(
         x=df['Date'],
         y=df['Volume'],
@@ -149,11 +141,14 @@ def volume_plot(df):
 
 
 def atr_plot(df):
-    period = 60
-    df = df.loc[df.shape[0] - period:]
-    df.reset_index(inplace=True)
-
-    fig = df['ATR'].plot()
+    ATR = go.Scatter(
+    x=df['Date'],
+    y=df['ATR'],
+    name='ATR',
+    line_color='brown',
+    )
+    layout = go.Layout(yaxis=dict())
+    fig = go.Figure(data=ATR, layout=layout)
     fig.update_layout(
         title='ATR',
         yaxis_title='ATR %',
@@ -164,10 +159,6 @@ def atr_plot(df):
 
 
 def macd_plot(df):
-    period = 60
-    df = df.loc[df.shape[0] - period:]
-    df.reset_index(inplace=True)
-
     MACD = go.Scatter(
         x=df['Date'],
         y=df['MACD'],
@@ -204,7 +195,7 @@ st.subheader('Data')
 st.dataframe(df)
 
 st.subheader('Graphics')
-if st.button('Price History (20MA, 50MA, Bollinger limits'):
+if st.button('Price (20MA, 50MA, Bollinger)'):
     price_plot(df)
 if st.button('Volume'):
     volume_plot(df)
